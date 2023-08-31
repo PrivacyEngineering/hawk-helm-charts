@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ include "hawk.fullname" . }}-monitor"
+  labels:
+    {{- include "hawk.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.monitor.replicaCount }}
+  selector:
+    matchLabels:
+      app: "{{ include "hawk.fullname" . }}-monitor"
+  template:
+    metadata:
+      {{- with .Values.monitor.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: "{{ include "hawk.fullname" . }}-monitor"
+    spec:
+      {{- with .Values.monitor.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "hawk.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.monitor.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.monitor.securityContext | nindent 12 }}
+          image: "{{ .Values.monitor.image.repository }}:{{ .Values.monitor.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.monitor.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.monitor.resources | nindent 12 }}
+      {{- with .Values.monitor.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.monitor.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.monitor.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ include "hawk.fullname" . }}-grafana"
+  labels:
+    {{- include "hawk.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.grafana.replicaCount }}
+  selector:
+    matchLabels:
+      app: "{{ include "hawk.fullname" . }}-grafana"
+  template:
+    metadata:
+      {{- with .Values.grafana.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: "{{ include "hawk.fullname" . }}-grafana"
+        sidecar.istio.io/inject: "false"
+    spec:
+      {{- with .Values.grafana.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "hawk.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.grafana.podSecurityContext | nindent 8 }}
+      containers:
+        - name: "{{ include "hawk.fullname" . }}-grafana"
+          securityContext:
+            {{- toYaml .Values.grafana.securityContext | nindent 12 }}
+          image: "{{ .Values.grafana.image.repository }}:{{ .Values.grafana.image.tag | default "9.5.6" }}"
+          imagePullPolicy: {{ .Values.grafana.image.pullPolicy }}
+          env:
+          - name: GF_INSTALL_PLUGINS
+            value: simpod-json-datasource 0.4.2, novatec-sdg-panel 4.0.3
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          volumeMounts:
+          - name: grafana-datasources
+            mountPath: /etc/grafana/provisioning/datasources
+            readOnly: false
+          - name: grafana-dashboards
+            mountPath: /var/lib/grafana/dashboards/Hawk
+            readOnly: false
+          - name: grafana-providers
+            mountPath: /etc/grafana/provisioning/dashboards
+            readOnly: false
+          resources:
+            {{- toYaml .Values.grafana.resources | nindent 12 }}
+      {{- with .Values.grafana.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.grafana.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: grafana-datasources
+        configMap:
+            defaultMode: 420
+            name: json-datasource
+      - name: grafana-dashboards
+        configMap:
+            defaultMode: 420
+            name: main-dashboard
+      - name: grafana-providers
+        configMap:
+            defaultMode: 420
+            name: grafana-providers
+      {{- with .Values.grafana.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ include "hawk.fullname" . }}-grafana"
+  labels:
+    {{- include "hawk.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.grafana.service.type }}
+  ports:
+    - port: {{ .Values.grafana.service.port }}
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  selector:
+    app: "{{ include "hawk.fullname" . }}-grafana"

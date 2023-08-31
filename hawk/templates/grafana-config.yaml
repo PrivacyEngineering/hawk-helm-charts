@@ -1,0 +1,436 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-providers
+  namespace: {{.Release.Namespace}}
+  labels:
+    {{- include "hawk.labels" . | nindent 4 }}
+data:
+  dashboards.yaml: |-
+    apiVersion: 1
+    providers: 
+      - name: 'Hawk'
+        updateIntervalSeconds: 10
+        allowUiUpdates: true
+        options:
+          path: /var/lib/grafana/dashboards
+          foldersFromFilesStructure: true
+        type: file
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: json-datasource
+  namespace: {{.Release.Namespace}}
+  labels:
+    {{- include "hawk.labels" . | nindent 4 }}
+data:
+  HAWK-JSON.yaml : |-
+    apiVersion: 1
+
+    providers: 
+      - name: 'Hawk Dashboards'
+        updateIntervalSeconds: 10
+        allowUiUpdates: true
+        options:
+          path: /var/lib/grafana/dashboards
+          foldersFromFilesStructure: true
+        type: file
+
+    deleteDatasources:
+      - name: HAWK-JSON
+        orgId: 1
+
+    datasources:
+      - name: HAWK-JSON
+        type: simpod-json-datasource
+        access: proxy
+        orgid: 1
+        isDefault: true
+        url: http://hawk-service.{{.Release.Namespace}}.svc.cluster.local
+        editable: true
+    
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: main-dashboard
+  namespace: {{.Release.Namespace}}
+  labels:
+    {{- include "hawk.labels" . | nindent 4 }}
+data:
+  main-dashboard.json : |-
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": {
+              "type": "grafana",
+              "uid": "-- Grafana --"
+            },
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+          }
+        ]
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": 1,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+        {
+          "datasource": {
+            "type": "simpod-json-datasource",
+            "uid": "bce62a56-4969-488e-950a-315503f0ff90"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 0
+          },
+          "id": 4,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "9.5.6",
+          "targets": [
+            {
+              "datasource": {
+                "type": "simpod-json-datasource",
+                "uid": "e2346306-6a7c-4608-84c8-2dd1a3b7bc14"
+              },
+              "hide": false,
+              "payload": "{\"fields\":[\"user.name\"]}",
+              "refId": "A",
+              "target": "field_requests_time"
+            }
+          ],
+          "title": "Field requests over time",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {},
+          "description": "A Table that shows the amount of requests of a service drilled down by\nthe initiator service. ",
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 0
+          },
+          "id": 2,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true
+          },
+          "pluginVersion": "9.5.6",
+          "targets": [
+            {
+              "datasource": {
+                "type": "simpod-json-datasource",
+                "uid": "e2346306-6a7c-4608-84c8-2dd1a3b7bc14"
+              },
+              "payload": "",
+              "refId": "A",
+              "target": "service_initiator_requests_table"
+            }
+          ],
+          "title": "Service Initiator Requests",
+          "type": "table"
+        },
+        {
+          "datasource": {},
+          "description": "The main panel of the Service Graph Dashboard. It shows the different\nservices of the cloud system and how many API requests occur between them.\nMoreover, this panel highlights the data flow and direction through animated packages\nthat flow between the services. This panel acts as an entry point for analysis and as an\nat glance overview.",
+          "gridPos": {
+            "h": 15,
+            "w": 12,
+            "x": 0,
+            "y": 8
+          },
+          "id": 3,
+          "options": {
+            "dataMapping": {
+              "aggregationType": "initiator",
+              "baselineRtUpper": "",
+              "errorRateColumn": "",
+              "errorRateOutgoingColumn": "",
+              "extOrigin": "",
+              "extTarget": "",
+              "requestRateColumn": "requests",
+              "requestRateOutgoingColumn": "",
+              "responseTimeColumn": "",
+              "responseTimeOutgoingColumn": "",
+              "showDummyData": false,
+              "sourceColumn": "",
+              "targetColumn": "service",
+              "type": ""
+            },
+            "drillDownLink": "",
+            "externalIcons": [
+              {
+                "filename": "web",
+                "pattern": "web"
+              },
+              {
+                "filename": "message",
+                "pattern": "jms"
+              },
+              {
+                "filename": "database",
+                "pattern": "jdbc"
+              },
+              {
+                "filename": "http",
+                "pattern": "http"
+              }
+            ],
+            "filterEmptyConnections": true,
+            "icons": [
+              {
+                "filename": "java",
+                "pattern": "java"
+              },
+              {
+                "filename": "star_trek",
+                "pattern": "spok|star trek"
+              }
+            ],
+            "showBaselines": false,
+            "showConnectionStats": true,
+            "showDebugInformation": false,
+            "style": {
+              "dangerColor": "rgb(196, 22, 42)",
+              "healthyColor": "rgb(87, 148, 242)",
+              "noDataColor": "rgb(123, 123, 138)"
+            },
+            "sumTimings": false,
+            "timeFormat": "m"
+          },
+          "pluginVersion": "4.0.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "simpod-json-datasource",
+                "uid": "e2346306-6a7c-4608-84c8-2dd1a3b7bc14"
+              },
+              "payload": "",
+              "refId": "A",
+              "target": "service_initiator_requests_table"
+            }
+          ],
+          "title": "Service Mesh Graph",
+          "type": "novatec-sdg-panel"
+        },
+        {
+          "datasource": {},
+          "description": "A Table that shows how often different services were requested in the\nspecified time span. This is an aggregated count over all service endpoints",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "fillOpacity": 80,
+                "gradientMode": "hue",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineWidth": 1,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 15,
+            "w": 12,
+            "x": 12,
+            "y": 8
+          },
+          "id": 1,
+          "options": {
+            "barRadius": 0,
+            "barWidth": 0.97,
+            "fullHighlight": true,
+            "groupWidth": 0.7,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "right",
+              "showLegend": true
+            },
+            "orientation": "horizontal",
+            "showValue": "always",
+            "stacking": "none",
+            "tooltip": {
+              "mode": "multi",
+              "sort": "none"
+            },
+            "xTickLabelRotation": 0,
+            "xTickLabelSpacing": 0
+          },
+          "pluginVersion": "9.5.6",
+          "targets": [
+            {
+              "datasource": {
+                "type": "simpod-json-datasource",
+                "uid": "e2346306-6a7c-4608-84c8-2dd1a3b7bc14"
+              },
+              "payload": "",
+              "refId": "A",
+              "target": "service_requests_table"
+            }
+          ],
+          "title": "Service Requests",
+          "type": "barchart"
+        }
+      ],
+      "refresh": "",
+      "schemaVersion": 38,
+      "style": "dark",
+      "tags": [],
+      "templating": {
+        "list": []
+      },
+      "time": {
+        "from": "now-6h",
+        "to": "now"
+      },
+      "timepicker": {},
+      "timezone": "",
+      "title": "Hawk-monitor-dashboard",
+      "uid": "b408d3e1-6a43-417f-a374-954d871903d3",
+      "version": 4,
+      "weekStart": ""
+    }
+

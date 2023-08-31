@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ include "hawk.fullname" . }}-service"
+  labels:
+    {{- include "hawk.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.grafana.replicaCount }}
+  selector:
+    matchLabels:
+      app: "{{ include "hawk.fullname" . }}-service"
+  template:
+    metadata:
+      {{- with .Values.service.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: "{{ include "hawk.fullname" . }}-service"
+    spec:
+      {{- with .Values.service.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "hawk.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.service.podSecurityContext | nindent 8 }}
+      containers:
+        - name: "{{ include "hawk.fullname" . }}-service"
+          securityContext:
+            {{- toYaml .Values.service.securityContext | nindent 12 }}
+          image: "{{ .Values.service.image.repository }}:{{ .Values.service.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.service.image.pullPolicy }}
+          env:
+          - name: SPRING_DATASOURCE_URL
+            value: "jdbc:postgresql://{{ .Release.Name }}-postgresql.{{ .Release.Namespace }}.svc/{{ .Values.postgresql.auth.database }}"
+          - name: SPRING_DATASOURCE_USERNAME
+            value: {{ .Values.postgresql.auth.username }}
+          - name: SPRING_DATASOURCE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-postgresql
+                key: password
+          - name: SPRING_PROFILES_ACTIVE
+            value: {{ .Values.service.profiles }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.service.resources | nindent 12 }}
+      {{- with .Values.service.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.service.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.service.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
