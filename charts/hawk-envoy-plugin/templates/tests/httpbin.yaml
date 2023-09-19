@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "hawk-envoy-plugin.fullname" . }}-test-connection"
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: alpine/curl
+      command:
+        - sh
+        - -c
+        - |
+          set -e
+          curl -X GET "http://{{ include "hawk-envoy-plugin.fullname" . }}-httpbin.{{ include "hawk-envoy-plugin.fullname" . }}-httpbin.svc:8000/headers"
+          curl -X GET "http://{{ include "hawk-envoy-plugin.fullname" . }}-httpbin.{{ include "hawk-envoy-plugin.fullname" . }}-httpbin.svc:8000/response-headers?freeform=should-be-in-hawk-service"
+          
+          sleep 10
+          
+          curl -X GET "{{ .Values.hawkEnvoyPlugin.hawkServiceApiUrl }}/endpoints/unmapped"
+  restartPolicy: Never

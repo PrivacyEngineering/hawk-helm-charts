@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "consumer.fullname" . }}
+  labels:
+    {{- include "consumer.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.consumer.autoscaling.enabled }}
+  replicas: {{ .Values.consumer.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "consumer.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "consumer.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "hawk-envoy-plugin.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.consumer.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ include "consumer.name" . }}
+          securityContext:
+            {{- toYaml .Values.consumer.securityContext | nindent 12 }}
+          image: "{{ .Values.consumer.image.repository }}:{{ .Values.consumer.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.consumer.image.pullPolicy }}
+          env:
+            # TODO: use secret from rabbitmq helm chart
+            - name: AMQP_CONNECTION
+              value: "amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}@{{ .Release.Name }}-rabbitmq:{{ .Values.rabbitmq.service.ports.amqp }}/"
+            - name: AMQP_QUEUE
+              value: "queue.collector"
+            - name: AMQP_DLQ
+              value: "queue.collector.dlq"
+            - name: COLLECTOR_URL
+              value: "{{ .Values.hawkEnvoyPlugin.hawkServiceApiUrl }}/usages/batch"
+          resources:
+            {{- toYaml .Values.consumer.resources | nindent 12 }}
+      {{- with .Values.consumer.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.consumer.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.consumer.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
