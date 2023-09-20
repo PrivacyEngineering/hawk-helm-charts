@@ -13,10 +13,12 @@ spec:
         - -c
         - |
           set -e
-          curl -X GET "http://{{ include "hawk-envoy-plugin.fullname" . }}-httpbin.{{ include "hawk-envoy-plugin.fullname" . }}-httpbin.svc:8000/headers"
-          curl -X GET "http://{{ include "hawk-envoy-plugin.fullname" . }}-httpbin.{{ include "hawk-envoy-plugin.fullname" . }}-httpbin.svc:8000/response-headers?freeform=should-be-in-hawk-service"
+          PARAM="should-be-in-hawk-service-${RANDOM}"
+          curl -X GET "http://{{ include "hawk-envoy-plugin.fullname" . }}-httpbin.{{ include "hawk-envoy-plugin.fullname" . }}-httpbin.svc:8000/response-headers?freeform=${PARAM}"
           
           sleep 10
           
-          curl -X GET "{{ .Values.hawkEnvoyPlugin.hawkServiceApiUrl }}/endpoints/unmapped"
+          echo "Checking if ${PARAM} is in unmapped endpoints:"
+
+          curl -X GET "{{ .Values.hawkEnvoyPlugin.hawkServiceApiUrl }}/endpoints/unmapped" | grep "${PARAM}"
   restartPolicy: Never

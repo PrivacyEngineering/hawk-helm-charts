@@ -27,7 +27,7 @@ collector:
     repository: ghcr.io/privacyengineering/collector-go
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "latest"
+    tag: "main"
 
   service:
     type: ClusterIP
@@ -74,7 +74,7 @@ consumer:
     repository: ghcr.io/privacyengineering/consumer
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "latest"
+    tag: "main"
 
   service:
     type: ClusterIP
