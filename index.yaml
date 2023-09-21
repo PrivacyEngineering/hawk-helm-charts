@@ -18,6 +18,21 @@ entries:
     urls:
     - https://github.com/PrivacyEngineering/hawk-helm-charts/releases/download/hawk-1.0.2/hawk-1.0.2.tgz
     version: 1.0.2
+  hawk-envoy-plugin:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2023-09-21T09:41:44.114662629Z"
+    dependencies:
+    - name: rabbitmq
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.1.0
+    description: A Helm chart for Kubernetes
+    digest: 9a4ceddea2605f6f52c05448c6f6f890581173122e5873afc71e9937f2834878
+    name: hawk-envoy-plugin
+    type: application
+    urls:
+    - https://github.com/PrivacyEngineering/hawk-helm-charts/releases/download/hawk-envoy-plugin-0.1.0/hawk-envoy-plugin-0.1.0.tgz
+    version: 0.1.0
   hawk-ep:
   - apiVersion: v2
     appVersion: 1.16.0
@@ -33,4 +48,4 @@ entries:
     urls:
     - https://github.com/PrivacyEngineering/hawk-helm-charts/releases/download/hawk-ep-0.1.0/hawk-ep-0.1.0.tgz
     version: 0.1.0
-generated: "2023-09-19T13:31:42.972588366Z"
+generated: "2023-09-21T09:41:44.114677128Z"
