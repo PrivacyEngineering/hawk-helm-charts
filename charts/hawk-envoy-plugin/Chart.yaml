@@ -1,6 +1,6 @@
 apiVersion: v2
 name: hawk-envoy-plugin
-description: A Helm chart for Kubernetes
+description: Extension for istio envoy to allow trace personal data between rest microservices in kubernetes
 
 # A chart can be either an 'application' or a 'library' chart.
 #
