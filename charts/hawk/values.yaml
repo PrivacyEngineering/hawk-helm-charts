@@ -1,14 +1,15 @@
 # Default values for hawk.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-nginx:
+
+grafana:
   replicaCount: 1
 
   image:
-    repository: nginx
+    repository: grafana/grafana
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: ""
+    tag: "8.5.0"
 
   imagePullSecrets: []
   nameOverride: ""
@@ -16,8 +17,11 @@ nginx:
 
   podAnnotations: {}
 
-  podSecurityContext: {}
-    # fsGroup: 2000
+  podSecurityContext:
+    fsGroup: 472
+    runAsUser: 472
+    supplementalGroups:
+      - 0
 
   securityContext: {}
     # capabilities:
@@ -49,17 +53,6 @@ nginx:
 
   affinity: {}
 
-grafana:
-  auth:
-    password: admin
-  ingress: 
-    enabled: true
-    className: nginx
-    pathType: Prefix
-    path: /
-
-    
-
 service:
   replicaCount: 1
 
@@ -67,7 +60,7 @@ service:
     repository: ghcr.io/privacyengineering/hawk-service
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "1.0.6"
+    tag: "latest"
 
   imagePullSecrets: []
   nameOverride: ""
@@ -112,6 +105,9 @@ service:
   affinity: {}
 
 monitor:
+
+  apiUrl: "http://hawk.example.com/api"
+
   replicaCount: 1
 
   image:
@@ -201,9 +197,10 @@ postgresql:
 
   affinity: {}
 
-
 ingress:
   enabled: true
+  className: "nginx"
+  host: "hawk.example.com"
 
 
 serviceAccount:

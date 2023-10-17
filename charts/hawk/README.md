@@ -2,12 +2,33 @@
 
 ![workflow](https://github.com/PrivacyEngineering/hawk/actions/workflows/main.yml/badge.svg)
 
+
+Hawk has been published at the 16th IEEE International Conference on Cloud Computing 2023, IEEE Cloud 2023.
+Please find its publication here: https://arxiv.org/abs/2306.02496
+
+## BibTex citation:
+```
+@misc{grünewald2023hawk,
+      title={Hawk: DevOps-driven Transparency and Accountability in Cloud Native Systems}, 
+      author={Elias Grünewald and Jannis Kiesel and Siar-Remzi Akbayin and Frank Pallas},
+      year={2023},
+      eprint={2306.02496},
+      archivePrefix={arXiv},
+      primaryClass={cs.DC}
+}
+```
+
+## Overview
+
 The Hawk Framework provides a way of tracking the dataflow between applications and allows for GDPR
 related tags to be added to the data references. It also features an analytical dashboard about the
 GDPR related information and integration for using the ratio of GDPR-tagged data in e.g. Flagger
 Canary releases.
 
-## Concept
+<details>
+<summary>Concept and Goal</summary>
+
+### Concept
 
 The concept is to archive this goal is to intercept the traffic between the individual applications
 / services. This idea is called Hawk Core. It can be either done by (A) Framework Integration inside
@@ -16,7 +37,7 @@ the Framework integration allows to interact with the Hawk API directly inside t
 the possibility to intercept encrypted and also external traffic, the application itself must be
 modified. The Service Mesh solution can be installed without modifying any application. Both
 solutions can be active in parallel. Currently the only integrations
-are [EnvoyProxy / Istio Service Mesh Integration]() and [Java Framework Integration]() for HTTP and
+are [EnvoyProxy / Istio Service Mesh Integration](integrations/hawk-envoy-plugin/README.md) and [Java Framework Integration]() for HTTP and
 JSON bodies only.
 
 When a Packet is intercepted it will be parsed, according to the protocol used. The parsing searches
@@ -62,48 +83,54 @@ of a service is changed. These changes can be then update in the Hawk Core Monit
 Hawk Release can constantly validate the coverage of mapped endpoints to prevent deploying unmapped
 endpoints.
 
-## Problems solved
+### Goal
 
-The Hawk Framework helps the company to be compliant with the GDPR, to avoid fines. The data
-protection officer can use this software to keep updated about privacy related information and
+The Hawk Framework helps businesses to be compliant with the GDPR, to avoid fines. The data
+protection officer can use this software to stay updated about privacy related information and
 change the privacy policy accordingly.
 
-## Deployment Guide
+</details>
 
-1. Install the istio service mesh using `istioctl` with the demo profile:
+## Quickstart
+
+### Deployment through Helm
+
+1. Add the helm chart repository:
     ```
-    istioctl install --set profile=default -y
+    helm repo add hawk https://privacyengineering.github.io/hawk-helm-charts/
     ```
-2. Create an ingress gateway for the hawk services:
-    ```
-    helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-    helm install nginx-ingress ingress-nginx/ingress-nginx
-    ```
-3. Create the namespace where hawk is intended to be applied:
-    ```
-    kubectl create namespace sock-shop
-    ```
-4. Install hawk core and all it's services:
+2. Modify values in [`values.yaml`](values.yaml) to your needs.
+3. Install hawk core and all it's services:
     ```
     helm dependency update
-    helm install -f values.yaml hawk . --namespace hawk --create-namespace
+    helm install hawk hawk/hawk --namespace hawk --create-namespace
     ```
-5. Install the rest of the demo architecture:
+4. Access the hawk-core-monitor and hawk-service via ingress:
     ```
-    kubectl apply -f ./02.sock-shop/
+    kubectl get ingress -n hawk
     ```
+5. Add an integration to the hawk framework (see [Integrations](#integrations) for more information)
 
-### Hawk Core
+### Deloyment alternatives
 
-This repository feature a Helm Chart which can be used to install this software in a Kubernetes
-environment using Helm. It's also possible to install the application in a Non-Kubernetes
+It's also possible to install the application in a Non-Kubernetes
 environment or configuring them more individual using the Docker Images of them. The Istio / Envoy
 integration is only available in specific Kubernetes environments.
 The [Java integration](https://github.com/PrivacyEngineering/hawk-integration-java) is available in
 every environment. It needs a connection to the Hawk Service. When possible, the Envoy Integration
 is preferred as it's less effort to install. You must choose at least one integration.
 
-#### Helm
+## Integrations
+
+The Hawk Framework can be extended through integrations. Currently there are two integrations (for HTTP and JSON bodies only):
+* [EnvoyProxy / Istio Service Mesh Integration](integrations/hawk-envoy-plugin/README.md)
+* [Java Framework Integration]()
+
+Both integrations communicate with the hawk-service via the exposed REST API.
+
+<details><summary> Hawk Core</summary>
+
+### Hawk Core
 
 The Helm Chart (WIP), installs the Hawk-Service, a default PostgreSQL database, Hawk Core Monitor (
 nginx + monitor + grafana) and the Istio / Envoy integration if selected.
@@ -147,12 +174,20 @@ two (or three) components. See [Nginx Deployment](templates/nginx-deployment.yam
 and [Nginx Config](templates/nginx-config.yaml) for information on which environment variables and
 which files to provide.
 
+</details>
+
+<details><summary>Hawk Release</summary>
+
 ### Hawk Release
 
 To enable Hawk Release, you have to install [Flux](https://github.com/fluxcd/flux)
 and [Flagger](https://github.com/fluxcd/flagger). Then you can configure to use the Metrics using
 Prometheus, see [Hawk Service](https://github.com/PrivacyEngineering/hawk-service) for more
 information on which mappings to use. You also need to configure Prometheus to scrape the Metrics.
+
+</details>
+
+<details><summary>Hawk Build</summary>
 
 ### Hawk Build
 
@@ -162,12 +197,25 @@ the [OpenAPI Privacy Changes Service](https://github.com/TUB-CNPE-TB/openapi-pri
 use [OpenAPI Privacy Alert GitHub Action](https://github.com/TUB-CNPE-TB/openapi-privacy-alert-action)
 .
 
-## Example
+</details>
+
+## Example Deployment
 
 An example using the [WeaveWorks SockShop](https://github.com/microservices-demo/microservices-demo)
 , integrated with some of Hawk components can be
 found [here](https://github.com/PrivacyEngine/hawk-sockshop).
 
 
-## Hawk Grafana Dashboard
-![Dashboard overview with four panels](./images/dashboard.png "Dashboard overview with four distinct panels")
+## Hawk Grafana Dashboard Evaluation
+
+We provide 4 grafana dashboards:
+
+- Dashboard
+- Service Graph
+- Field Details
+- Endpoint Details
+
+A detailed explanation of the dashboards can be found [here](./grafana/README.md).
+
+### Hawk Monitor Overview Dashboard
+[![Dashboard overview with four panels](./grafana/images/overview.png "Dashboard overview with four distinct panels")](./grafana/README.md)

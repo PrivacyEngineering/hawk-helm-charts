@@ -6,30 +6,39 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.ingress.maxBodySize | default "50m" }}
     nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
 
     {{- if .Values.ingress.additionalAnnotations }}
 {{ toYaml .Values.ingress.additionalAnnotations  | indent 4 }}
     {{- end }}
 spec:
-  ingressClassName: nginx
+  {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
   rules:
-  - host: ""
+  - host: "{{ .Values.ingress.host | default "" }}"
     http:
       paths:
-      - pathType: Prefix
-        path: /()((api|webjars|v3).*)
+      {{ range $path := list "/api/*" "/webjars/*" "/v3/*" "/swagger-ui.html" }}
+      - pathType: ImplementationSpecific
+        path: "{{ $path }}"
         backend:
           service:
-            name: {{ include "hawk.fullname" . }}-service
+            name: {{ include "hawk.fullname" $ }}-service
             port:
-              number: {{ .Values.service.service.port }}
-      - pathType: Prefix
-        path: /()(.*)
+              number: {{ $.Values.service.service.port }}
+      {{ end }}
+      - pathType: ImplementationSpecific
+        path: /grafana/*
+        backend:
+          service:
+            name: {{ include "hawk.fullname" . }}-grafana
+            port:
+              number: {{ .Values.grafana.service.port }}
+      - pathType: ImplementationSpecific
+        path: /*
         backend:
           service:
             name: {{ include "hawk.fullname" . }}-monitor
             port:
               number: {{ .Values.monitor.service.port }}
-
 {{- end }}

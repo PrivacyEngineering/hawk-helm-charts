@@ -30,11 +30,11 @@ spec:
         - name: "{{ include "hawk.fullname" . }}-grafana"
           securityContext:
             {{- toYaml .Values.grafana.securityContext | nindent 12 }}
-          image: "{{ .Values.grafana.image.repository }}:{{ .Values.grafana.image.tag | default "9.5.6" }}"
+          image: "{{ .Values.grafana.image.repository }}:{{ .Values.grafana.image.tag | default "8.5.0" }}"
           imagePullPolicy: {{ .Values.grafana.image.pullPolicy }}
           env:
           - name: GF_INSTALL_PLUGINS
-            value: simpod-json-datasource 0.4.2, novatec-sdg-panel 4.0.3
+            value: simpod-json-datasource 0.3.0 , novatec-sdg-panel 4.0.3
           ports:
             - name: http
               containerPort: 3000
@@ -48,15 +48,18 @@ spec:
               path: /
               port: http
           volumeMounts:
-          - name: grafana-datasources
-            mountPath: /etc/grafana/provisioning/datasources
-            readOnly: false
-          - name: grafana-dashboards
-            mountPath: /var/lib/grafana/dashboards/Hawk
-            readOnly: false
-          - name: grafana-providers
-            mountPath: /etc/grafana/provisioning/dashboards
-            readOnly: false
+            - mountPath: /etc/grafana/provisioning/datasources
+              name: {{ include "hawk.fullname" . }}-grafana-datasources
+              readOnly: false
+            - mountPath: /var/lib/grafana/dashboards/Hawk
+              name: {{ include "hawk.fullname" . }}-grafana-dashboards
+              readOnly: false
+            - mountPath: /etc/grafana/provisioning/dashboards
+              name: {{ include "hawk.fullname" . }}-grafana-providers
+            - mountPath: /etc/grafana/grafana.ini
+              subPath: grafana.ini
+              name: {{ include "hawk.fullname" . }}-grafana-config
+              readOnly: true
           resources:
             {{- toYaml .Values.grafana.resources | nindent 12 }}
       {{- with .Values.grafana.nodeSelector }}
@@ -68,18 +71,22 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-      - name: grafana-datasources
-        configMap:
-            defaultMode: 420
-            name: json-datasource
-      - name: grafana-dashboards
-        configMap:
-            defaultMode: 420
-            name: main-dashboard
-      - name: grafana-providers
-        configMap:
-            defaultMode: 420
-            name: grafana-providers
+        - name: {{ include "hawk.fullname" . }}-grafana-config
+          configMap:
+              defaultMode: 420
+              name: {{ include "hawk.fullname" . }}-grafana-config
+        - name: {{ include "hawk.fullname" . }}-grafana-datasources
+          configMap:
+              defaultMode: 420
+              name: {{ include "hawk.fullname" . }}-grafana-datasource
+        - name: {{ include "hawk.fullname" . }}-grafana-dashboards
+          configMap:
+              defaultMode: 420
+              name: {{ include "hawk.fullname" . }}-grafana-dashboards
+        - name: {{ include "hawk.fullname" . }}-grafana-providers
+          configMap:
+              defaultMode: 420
+              name: {{ include "hawk.fullname" . }}-grafana-providers
       {{- with .Values.grafana.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
