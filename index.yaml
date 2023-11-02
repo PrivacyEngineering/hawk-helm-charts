@@ -3,6 +3,20 @@ entries:
   hawk:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2023-11-02T13:55:19.306521252Z"
+    dependencies:
+    - name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.6.6
+    description: A Helm chart for Kubernetes
+    digest: eab5467154c403577f253e0a5ff4727b15e90e30ba54f043100fc5c7c523d242
+    name: hawk
+    type: application
+    urls:
+    - https://github.com/PrivacyEngineering/hawk-helm-charts/releases/download/hawk-1.0.3/hawk-1.0.3.tgz
+    version: 1.0.3
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2023-08-31T13:49:29.279366332Z"
     dependencies:
     - name: postgresql
@@ -33,4 +47,4 @@ entries:
     urls:
     - https://github.com/PrivacyEngineering/hawk-helm-charts/releases/download/hawk-envoy-plugin-0.1.0/hawk-envoy-plugin-0.1.0.tgz
     version: 0.1.0
-generated: "2023-09-21T09:41:44.114677128Z"
+generated: "2023-11-02T13:55:19.306537753Z"
