@@ -111,7 +111,7 @@ monitor:
   replicaCount: 1
 
   image:
-    repository: ghcr.io/privacyengineering/hawk-core-monitor
+    repository: ghcr.io/privacyengineering/hawk-monitor
     pullPolicy: IfNotPresent
     tag: "master"
 
