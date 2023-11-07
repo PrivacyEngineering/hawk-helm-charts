@@ -33,7 +33,7 @@ spec:
           imagePullPolicy: {{ .Values.monitor.image.pullPolicy }}
           env:
             - name: API_URL
-              value: "{{ .Values.ingress.host }}"
+              value: "{{ .Values.monitor.apiUrl }}"
           ports:
             - name: http
               containerPort: 80
