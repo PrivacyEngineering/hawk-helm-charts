@@ -3,6 +3,23 @@ entries:
   hawk:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2023-11-07T13:34:20.511712392Z"
+    dependencies:
+    - name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 12.6.6
+    description: 'The Hawk Framework provides a way of tracking the dataflow between
+      applications and allows for GDPR related tags to be added to the data references.  It
+      also features an analytical dashboard about the GDPR related information and
+      integration for using the ratio of GDPR-tagged data in e.g. Flagger Canary releases. '
+    digest: f0d86f64283ab9e5a8aac897a0a6f91199391a2cfa19c7619c5f65008399f59a
+    name: hawk
+    type: application
+    urls:
+    - https://github.com/PrivacyEngineering/hawk-helm-charts/releases/download/hawk-1.1.0/hawk-1.1.0.tgz
+    version: 1.1.0
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2023-11-02T13:55:19.306521252Z"
     dependencies:
     - name: postgresql
@@ -47,4 +64,4 @@ entries:
     urls:
     - https://github.com/PrivacyEngineering/hawk-helm-charts/releases/download/hawk-envoy-plugin-0.1.0/hawk-envoy-plugin-0.1.0.tgz
     version: 0.1.0
-generated: "2023-11-02T13:55:19.306537753Z"
+generated: "2023-11-07T13:34:20.511725507Z"
