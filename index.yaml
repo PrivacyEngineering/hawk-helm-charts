@@ -3,6 +3,19 @@ entries:
   hawk:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2023-12-12T11:00:40.001159164Z"
+    description: 'The Hawk Framework provides a way of tracking the dataflow between
+      applications and allows for GDPR related tags to be added to the data references.  It
+      also features an analytical dashboard about the GDPR related information and
+      integration for using the ratio of GDPR-tagged data in e.g. Flagger Canary releases. '
+    digest: bc570c0e86d07e4c5e2747385b71880c831435b15f2c50233afb8e9f8eba27f7
+    name: hawk
+    type: application
+    urls:
+    - https://github.com/PrivacyEngineering/hawk-helm-charts/releases/download/hawk-1.1.2/hawk-1.1.2.tgz
+    version: 1.1.2
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2023-11-07T15:04:24.990495715Z"
     dependencies:
     - name: postgresql
@@ -81,4 +94,4 @@ entries:
     urls:
     - https://github.com/PrivacyEngineering/hawk-helm-charts/releases/download/hawk-envoy-plugin-0.1.0/hawk-envoy-plugin-0.1.0.tgz
     version: 0.1.0
-generated: "2023-11-07T15:04:24.990516916Z"
+generated: "2023-12-12T11:00:40.001197225Z"
