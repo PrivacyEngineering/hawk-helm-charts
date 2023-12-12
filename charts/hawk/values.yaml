@@ -154,13 +154,19 @@ monitor:
 
   affinity: {}
 
-postgresql:
+postgres:
+
+  image:
+    repository: postgres
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ""
+
 
   auth:
     database: "mydb"
     username: "myuser"
     password: "mysecretpassword"
-    enablePostgresUser: true
 
   podAnnotations: {}
 
