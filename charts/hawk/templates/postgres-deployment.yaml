@@ -29,7 +29,7 @@ spec:
         - name: "{{ include "hawk.fullname" . }}-postgres"
           securityContext:
             {{- toYaml .Values.postgres.securityContext | nindent 12 }}
-          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag | default "16.1" }}"
           imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
           env:
             - name: POSTGRES_USER
