@@ -37,10 +37,7 @@ spec:
           - name: SPRING_DATASOURCE_USERNAME
             value: {{ .Values.postgres.auth.username }}
           - name: SPRING_DATASOURCE_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Release.Name }}-postgresql
-                key: password
+            value: {{ .Values.postgres.auth.password }}
           - name: SPRING_PROFILES_ACTIVE
             value: {{ .Values.service.profiles }}
           ports:
