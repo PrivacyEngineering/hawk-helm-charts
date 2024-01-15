@@ -33,7 +33,7 @@ spec:
           imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
           env:
             - name: POSTGRES_USER
-              value: {{ .Values.postgres.auth.user }}
+              value: {{ .Values.postgres.auth.username }}
             - name: POSTGRES_PASSWORD
               value: {{ .Values.postgres.auth.password }}
             - name: POSTGRES_DB

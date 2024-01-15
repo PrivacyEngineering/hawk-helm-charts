@@ -33,7 +33,7 @@ spec:
           imagePullPolicy: {{ .Values.service.image.pullPolicy }}
           env:
           - name: SPRING_DATASOURCE_URL
-            value: "jdbc:postgresql://{{ .Release.Name }}-postgresql.{{ .Release.Namespace }}.svc/{{ .Values.postgres.auth.database }}"
+            value: "jdbc:postgresql://{{ .Release.Name }}-postgres.{{ .Release.Namespace }}.svc/{{ .Values.postgres.auth.database }}"
           - name: SPRING_DATASOURCE_USERNAME
             value: {{ .Values.postgres.auth.username }}
           - name: SPRING_DATASOURCE_PASSWORD
